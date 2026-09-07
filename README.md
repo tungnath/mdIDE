@@ -2,6 +2,25 @@
 
 A very lightweight, beautiful markdown viewer/editor. Desktop app (via [Tauri](https://tauri.app)) with an optional browser mode.
 
+## Download
+
+Grab the latest installer for your platform from the [Releases page](https://github.com/tungnath/mdIDE/releases/latest):
+
+| Platform | File |
+|---|---|
+| Windows | `Marker_<version>_x64-setup.exe` — or the `.msi`, either works |
+| macOS (Apple Silicon) | `Marker_<version>_aarch64.dmg` |
+| macOS (Intel) | `Marker_<version>_x64.dmg` |
+| Linux (Debian/Ubuntu) | `Marker_<version>_amd64.deb` |
+| Linux (Fedora/RHEL) | `Marker-<version>-1.x86_64.rpm` |
+| Linux (any distro) | `Marker_<version>_amd64.AppImage` |
+
+Each release also includes a `.app.tar.gz` per macOS architecture — those are auto-update artifacts, not meant for manual download.
+
+Builds are unsigned, so first launch may warn you: Windows SmartScreen shows an "unrecognized publisher" prompt (click "More info" → "Run anyway"), and macOS Gatekeeper blocks the app until you right-click → Open once.
+
+Prefer not to install anything? Try it in the browser at **[markdw.netlify.app](https://markdw.netlify.app/)** — full folder browsing and save-in-place work in Chrome/Edge; other browsers get single-file open/edit with save-as-download.
+
 ## Features
 
 - **View**, **Edit**, and **Split** modes, toggleable per file (`Ctrl/Cmd+E` toggles View/Edit)
