@@ -46,3 +46,8 @@ npm run tauri build   # produces an installer/binary in src-tauri/target/release
 ## Stack
 
 Tauri 2 (Rust) + SvelteKit (static/SPA adapter) + CodeMirror 6 + marked + highlight.js. No UI framework beyond Svelte — kept deliberately small.
+
+## Docs
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — system diagrams, deployment topology, stack rationale
+- [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) — module reference, key design decisions, security/performance notes
