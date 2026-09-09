@@ -11,6 +11,9 @@
     listMarkdownFiles,
     openEntry,
     supportsFolderBrowsing,
+    createUntitledDoc,
+    readClipboardText,
+    saveAsNewFile,
     type Folder,
     type FileEntry,
     type OpenDoc,
@@ -27,7 +30,9 @@
   let errorMsg = $state<string | null>(null);
   let retryAction = $state<(() => void) | null>(null);
 
-  let dirty = $derived(currentDoc !== null && content !== savedContent);
+  let dirty = $derived(
+    currentDoc !== null && (currentDoc.isUntitled === true || content !== savedContent),
+  );
 
   // Loaded on demand (first time Edit mode is opened) to keep startup light.
   let EditorComponent = $state<typeof import("$lib/components/MarkdownEditor.svelte").default | null>(
@@ -122,6 +127,23 @@
     await loadDoc(doc, null);
   }
 
+  async function handleNewFromClipboard() {
+    if (!(await guardUnsaved())) return;
+    const text = await readClipboardText();
+    if (!text) {
+      errorMsg = "Clipboard is empty, or this browser blocked reading it.";
+      retryAction = () => handleNewFromClipboard();
+      return;
+    }
+    currentDoc = createUntitledDoc("Untitled.md");
+    content = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    savedContent = "";
+    mode = "view";
+    activeId = null;
+    errorMsg = null;
+    retryAction = null;
+  }
+
   async function handleSelectEntry(entry: FileEntry) {
     if (entry.id === activeId) return;
     if (!(await guardUnsaved())) return;
@@ -156,8 +178,18 @@
     if (!currentDoc) return;
     saving = true;
     try {
-      await currentDoc.save(content);
-      savedContent = content;
+      if (currentDoc.isUntitled) {
+        const saved = await saveAsNewFile(currentDoc.name, content);
+        if (saved) {
+          currentDoc = saved;
+          savedContent = content;
+          if (folder) await refreshFolderListing(folder);
+        }
+        // else: user cancelled the save dialog - stay untitled, no error
+      } else {
+        await currentDoc.save(content);
+        savedContent = content;
+      }
       errorMsg = null;
       retryAction = null;
     } catch (e) {
@@ -165,6 +197,22 @@
       retryAction = () => handleSave();
     } finally {
       saving = false;
+    }
+  }
+
+  function handleExportPdf() {
+    const previousMode = mode;
+    const restore = () => {
+      mode = previousMode;
+      window.removeEventListener("afterprint", restore);
+    };
+    if (mode !== "view" && mode !== "split") {
+      mode = "view";
+      window.addEventListener("afterprint", restore);
+      // Let the preview mount before the print dialog captures the page.
+      setTimeout(() => window.print(), 50);
+    } else {
+      window.print();
     }
   }
 
@@ -201,6 +249,7 @@
     supportsFolder={supportsFolderBrowsing}
     onOpenFolder={handleOpenFolder}
     onOpenFile={handleOpenFile}
+    onNewFromClipboard={handleNewFromClipboard}
     onCloseFolder={handleCloseFolder}
     onSelectEntry={handleSelectEntry}
   />
@@ -208,6 +257,7 @@
   <div class="main">
     <Toolbar
       doc={currentDoc}
+      {content}
       {dirty}
       {mode}
       {saving}
@@ -216,6 +266,7 @@
       onSave={handleSave}
       onClose={handleCloseFile}
       onToggleTheme={() => theme.toggle()}
+      onExportPdf={handleExportPdf}
     />
 
     {#if errorMsg}
@@ -270,6 +321,7 @@
         supportsFolder={supportsFolderBrowsing}
         onOpenFolder={handleOpenFolder}
         onOpenFile={handleOpenFile}
+        onNewFromClipboard={handleNewFromClipboard}
       />
     {/if}
   </div>

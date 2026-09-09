@@ -1,8 +1,11 @@
 <script lang="ts">
   import type { OpenDoc } from "$lib/platform";
+  import { downloadBlob } from "$lib/download";
+  import { renderStandaloneHtml, extractPlainText, baseNameWithoutExt } from "$lib/export";
 
   let {
     doc,
+    content,
     dirty,
     mode,
     saving,
@@ -11,8 +14,10 @@
     onSave,
     onClose,
     onToggleTheme,
+    onExportPdf,
   }: {
     doc: OpenDoc | null;
+    content: string;
     dirty: boolean;
     mode: "view" | "edit" | "split";
     saving: boolean;
@@ -21,8 +26,47 @@
     onSave: () => void;
     onClose: () => void;
     onToggleTheme: () => void;
+    onExportPdf: () => void;
   } = $props();
+
+  let exportOpen = $state(false);
+  let exportMenuEl: HTMLDivElement | undefined = $state();
+
+  function toggleExport() {
+    exportOpen = !exportOpen;
+  }
+
+  function closeExport() {
+    exportOpen = false;
+  }
+
+  function handleWindowClick(e: MouseEvent) {
+    if (exportOpen && exportMenuEl && !exportMenuEl.contains(e.target as Node)) {
+      exportOpen = false;
+    }
+  }
+
+  function exportHtml() {
+    if (!doc) return;
+    const base = baseNameWithoutExt(doc.name);
+    downloadBlob(renderStandaloneHtml(content, base), `${base}.html`, "text/html");
+    closeExport();
+  }
+
+  function exportText() {
+    if (!doc) return;
+    const base = baseNameWithoutExt(doc.name);
+    downloadBlob(extractPlainText(content), `${base}.txt`, "text/plain");
+    closeExport();
+  }
+
+  function exportPdf() {
+    closeExport();
+    onExportPdf();
+  }
 </script>
+
+<svelte:window onclick={handleWindowClick} />
 
 <header class="toolbar">
   <div class="left">
@@ -68,6 +112,24 @@
       <button class="btn save" disabled={!dirty || saving} onclick={onSave}>
         {saving ? "Saving…" : "Save"}
       </button>
+
+      <div class="export-wrap" bind:this={exportMenuEl}>
+        <button
+          class="btn"
+          onclick={toggleExport}
+          aria-haspopup="menu"
+          aria-expanded={exportOpen}
+        >
+          Export ▾
+        </button>
+        {#if exportOpen}
+          <div class="export-menu" role="menu">
+            <button role="menuitem" onclick={exportHtml}>as HTML</button>
+            <button role="menuitem" onclick={exportPdf}>as PDF…</button>
+            <button role="menuitem" onclick={exportText}>as Plain Text</button>
+          </div>
+        {/if}
+      </div>
 
       <button class="icon-btn" title="Close file" aria-label="Close file" onclick={onClose}>
         ×
@@ -215,5 +277,38 @@
     width: 1px;
     height: 20px;
     background: var(--border);
+  }
+
+  .export-wrap {
+    position: relative;
+  }
+
+  .export-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 10;
+  }
+
+  .export-menu button {
+    border: none;
+    background: none;
+    color: var(--text);
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.84rem;
+  }
+
+  .export-menu button:hover {
+    background: var(--surface-alt);
   }
 </style>

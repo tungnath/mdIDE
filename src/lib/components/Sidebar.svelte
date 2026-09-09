@@ -8,6 +8,7 @@
     supportsFolder,
     onOpenFolder,
     onOpenFile,
+    onNewFromClipboard,
     onCloseFolder,
     onSelectEntry,
   }: {
@@ -17,6 +18,7 @@
     supportsFolder: boolean;
     onOpenFolder: () => void;
     onOpenFile: () => void;
+    onNewFromClipboard: () => void;
     onCloseFolder: () => void;
     onSelectEntry: (entry: FileEntry) => void;
   } = $props();
@@ -28,6 +30,7 @@
     {#if supportsFolder}
       <button class="btn" onclick={onOpenFolder}>Open Folder…</button>
     {/if}
+    <button class="btn" onclick={onNewFromClipboard}>New from Clipboard</button>
   </div>
 
   {#if folder}

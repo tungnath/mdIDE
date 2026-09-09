@@ -234,3 +234,33 @@ button {
 .hljs-tag {
   color: #a04bce;
 }
+
+/* ---------- print (used by "Export as PDF", via window.print()) ---------- */
+
+@media print {
+  .sidebar,
+  .toolbar,
+  .error-banner,
+  .split-divider,
+  .editor-host {
+    display: none !important;
+  }
+
+  .app,
+  .main,
+  .split,
+  .split-pane {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .preview {
+    overflow: visible !important;
+  }
+
+  .prose {
+    max-width: none;
+    padding: 0;
+  }
+}

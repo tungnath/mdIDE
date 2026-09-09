@@ -1,4 +1,5 @@
 import { isTauri, invoke } from "@tauri-apps/api/core";
+import { downloadBlob } from "./download";
 
 export type BackendKind = "tauri" | "fsa" | "fallback";
 
@@ -21,6 +22,10 @@ export interface OpenDoc {
   name: string;
   path: string;
   canSaveInPlace: boolean;
+  /** True for a document that has no backing file yet (e.g. pasted from the
+   * clipboard) - saving it must go through saveAsNewFile() rather than
+   * doc.save(), which has nowhere to write to. */
+  isUntitled?: boolean;
   read(): Promise<string>;
   save(content: string): Promise<void>;
 }
@@ -98,6 +103,26 @@ function tauriOpenDoc(entry: FileEntry): OpenDoc {
   };
 }
 
+async function tauriSaveAsNewFile(
+  suggestedName: string,
+  content: string,
+): Promise<OpenDoc | null> {
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  const path = await save({
+    defaultPath: suggestedName,
+    filters: [{ name: "Markdown", extensions: ["md", "markdown"] }],
+  });
+  if (!path) return null;
+  await invoke<void>("write_md_file", { path, contents: content });
+  return tauriOpenDoc({ kind: "tauri", id: path, name: basename(path), path });
+}
+
+async function tauriReadClipboardText(): Promise<string | null> {
+  const { readText } = await import("@tauri-apps/plugin-clipboard-manager");
+  const text = await readText();
+  return text || null;
+}
+
 // ---------- File System Access API backend (Chrome/Edge) ----------
 
 async function fsaPickFolder(): Promise<Folder | null> {
@@ -160,6 +185,30 @@ function fsaOpenDoc(entry: FileEntry): OpenDoc {
   };
 }
 
+async function fsaSaveAsNewFile(
+  suggestedName: string,
+  content: string,
+): Promise<OpenDoc | null> {
+  try {
+    // @ts-expect-error - not in TS lib yet on all targets
+    const handle: FileSystemFileHandle = await window.showSaveFilePicker({
+      suggestedName,
+      types: [
+        {
+          description: "Markdown",
+          accept: { "text/markdown": [".md", ".markdown"] },
+        },
+      ],
+    });
+    const writable = await handle.createWritable();
+    await writable.write(content);
+    await writable.close();
+    return fsaOpenDoc({ kind: "fsa", id: handle.name, name: handle.name, handle });
+  } catch {
+    return null; // user cancelled, or picker unsupported
+  }
+}
+
 // ---------- Fallback backend (Firefox/Safari): read via <input>, save via download ----------
 
 function fallbackPickFile(): Promise<OpenDoc | null> {
@@ -178,15 +227,8 @@ function fallbackPickFile(): Promise<OpenDoc | null> {
         path: file.name,
         canSaveInPlace: false,
         read: () => file.text(),
-        save: async (content: string) => {
-          const blob = new Blob([content], { type: "text/markdown" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = file.name;
-          a.click();
-          URL.revokeObjectURL(url);
-        },
+        save: async (content: string) =>
+          downloadBlob(content, file.name, "text/markdown"),
       });
     };
     input.click();
@@ -215,4 +257,44 @@ export async function pickFile(): Promise<OpenDoc | null> {
   if (backendKind === "tauri") return tauriPickFile();
   if (backendKind === "fsa") return fsaPickFile();
   return fallbackPickFile();
+}
+
+/** A document with content already in hand but no backing file - saving it
+ * always goes through saveAsNewFile() rather than doc.save(). */
+export function createUntitledDoc(name: string): OpenDoc {
+  return {
+    name,
+    path: "",
+    canSaveInPlace: false,
+    isUntitled: true,
+    read: async () => "",
+    save: async () => {
+      throw new Error("Untitled documents must be saved via Save As");
+    },
+  };
+}
+
+export async function readClipboardText(): Promise<string | null> {
+  if (backendKind === "tauri") return tauriReadClipboardText();
+  if (typeof navigator === "undefined" || !navigator.clipboard?.readText) return null;
+  try {
+    const text = await navigator.clipboard.readText();
+    return text || null;
+  } catch {
+    return null; // permission denied, or blocked outside a secure context
+  }
+}
+
+/** Prompts for a save location and writes `content` there, returning an
+ * OpenDoc bound to that new location (or null if the user cancelled). In
+ * the fallback backend there's no real handle to bind to, so this just
+ * triggers a download and returns null - the document stays untitled. */
+export async function saveAsNewFile(
+  suggestedName: string,
+  content: string,
+): Promise<OpenDoc | null> {
+  if (backendKind === "tauri") return tauriSaveAsNewFile(suggestedName, content);
+  if (backendKind === "fsa") return fsaSaveAsNewFile(suggestedName, content);
+  downloadBlob(content, suggestedName, "text/markdown");
+  return null;
 }

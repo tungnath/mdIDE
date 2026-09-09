@@ -3,10 +3,12 @@
     supportsFolder,
     onOpenFolder,
     onOpenFile,
+    onNewFromClipboard,
   }: {
     supportsFolder: boolean;
     onOpenFolder: () => void;
     onOpenFile: () => void;
+    onNewFromClipboard: () => void;
   } = $props();
 </script>
 
@@ -24,6 +26,7 @@
       {#if supportsFolder}
         <button class="btn" onclick={onOpenFolder}>Open Folder…</button>
       {/if}
+      <button class="btn" onclick={onNewFromClipboard}>New from Clipboard</button>
     </div>
     {#if !supportsFolder}
       <p class="note">
@@ -73,6 +76,7 @@
     display: flex;
     gap: 0.6rem;
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .btn {
