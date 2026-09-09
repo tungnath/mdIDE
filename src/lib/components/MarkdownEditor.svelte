@@ -48,7 +48,23 @@
           fontFamily: "var(--font-mono)",
           padding: "1.25rem 0",
         },
-        ".cm-scroller": { lineHeight: "1.6" },
+        ".cm-scroller": {
+          lineHeight: "1.6",
+          scrollbarWidth: "thin",
+          scrollbarColor: "var(--border) transparent",
+        },
+        ".cm-scroller::-webkit-scrollbar": { width: "8px", height: "8px" },
+        ".cm-scroller::-webkit-scrollbar-track": { background: "transparent" },
+        ".cm-scroller::-webkit-scrollbar-thumb": {
+          background: "var(--border)",
+          borderRadius: "8px",
+          border: "2px solid var(--surface)",
+          backgroundClip: "padding-box",
+        },
+        ".cm-scroller::-webkit-scrollbar-thumb:hover": {
+          background: "var(--text-muted)",
+          backgroundClip: "padding-box",
+        },
       }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
