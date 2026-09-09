@@ -79,9 +79,6 @@
       </div>
 
       <div class="foot">
-        <a href="https://github.com/tungnath/mdIDE" target="_blank" rel="noopener noreferrer">
-          Source on GitHub
-        </a>
         <button class="btn" onclick={onClose}>Close</button>
       </div>
     </div>
@@ -110,6 +107,28 @@
     max-width: 100%;
     max-height: calc(100vh - 3rem);
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .modal::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .modal::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 8px;
+    border: 2px solid var(--surface);
+    background-clip: padding-box;
+  }
+
+  .modal::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+    background-clip: padding-box;
   }
 
   .head {
@@ -206,17 +225,7 @@
     margin-top: 1.3rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
-
-  .foot a {
-    color: var(--accent);
-    font-size: 0.82rem;
-    text-decoration: none;
-  }
-
-  .foot a:hover {
-    text-decoration: underline;
+    justify-content: flex-end;
   }
 
   .btn {
