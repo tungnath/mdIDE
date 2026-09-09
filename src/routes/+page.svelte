@@ -4,6 +4,7 @@
   import MarkdownPreview from "$lib/components/MarkdownPreview.svelte";
   import EmptyState from "$lib/components/EmptyState.svelte";
   import ConfirmDialog from "$lib/components/ConfirmDialog.svelte";
+  import AboutDialog from "$lib/components/AboutDialog.svelte";
   import { theme } from "$lib/theme.svelte";
   import {
     pickFolder,
@@ -29,6 +30,7 @@
   let saving = $state(false);
   let errorMsg = $state<string | null>(null);
   let retryAction = $state<(() => void) | null>(null);
+  let aboutOpen = $state(false);
 
   let dirty = $derived(
     currentDoc !== null && (currentDoc.isUntitled === true || content !== savedContent),
@@ -267,6 +269,7 @@
       onClose={handleCloseFile}
       onToggleTheme={() => theme.toggle()}
       onExportPdf={handleExportPdf}
+      onOpenAbout={() => (aboutOpen = true)}
     />
 
     {#if errorMsg}
@@ -338,6 +341,8 @@
   ]}
   onAction={onConfirmAction}
 />
+
+<AboutDialog open={aboutOpen} onClose={() => (aboutOpen = false)} />
 
 <style>
   .app {

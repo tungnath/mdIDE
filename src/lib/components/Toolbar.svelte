@@ -14,6 +14,7 @@
     onClose,
     onToggleTheme,
     onExportPdf,
+    onOpenAbout,
   }: {
     doc: OpenDoc | null;
     content: string;
@@ -26,6 +27,7 @@
     onClose: () => void;
     onToggleTheme: () => void;
     onExportPdf: () => void;
+    onOpenAbout: () => void;
   } = $props();
 
   let exportOpen = $state(false);
@@ -163,6 +165,19 @@
           />
         </svg>
       {/if}
+    </button>
+
+    <button
+      class="icon-btn"
+      title="About MarkDW"
+      aria-label="About MarkDW"
+      onclick={onOpenAbout}
+    >
+      <svg viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.3" />
+        <path d="M10 9v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="10" cy="6.6" r="0.9" fill="currentColor" />
+      </svg>
     </button>
   </div>
 </header>
