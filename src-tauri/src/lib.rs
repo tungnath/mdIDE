@@ -67,8 +67,11 @@ fn read_md_file(path: String) -> Result<String, String> {
     Ok(String::from_utf8_lossy(&bytes).into_owned())
 }
 
+// Generic (not markdown-specific) - also used to write exported .html/.txt
+// files, since Tauri's WebView2 host doesn't reliably turn a blob-URL
+// download into an actual saved file the way a real browser tab does.
 #[tauri::command]
-fn write_md_file(path: String, contents: String) -> Result<(), String> {
+fn write_text_file(path: String, contents: String) -> Result<(), String> {
     with_retries(|| fs::write(&path, &contents))
 }
 
@@ -81,7 +84,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             list_md_files,
             read_md_file,
-            write_md_file
+            write_text_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

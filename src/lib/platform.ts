@@ -99,7 +99,7 @@ function tauriOpenDoc(entry: FileEntry): OpenDoc {
     canSaveInPlace: true,
     read: () => invoke<string>("read_md_file", { path: entry.path }),
     save: (content: string) =>
-      invoke<void>("write_md_file", { path: entry.path, contents: content }),
+      invoke<void>("write_text_file", { path: entry.path, contents: content }),
   };
 }
 
@@ -113,7 +113,7 @@ async function tauriSaveAsNewFile(
     filters: [{ name: "Markdown", extensions: ["md", "markdown"] }],
   });
   if (!path) return null;
-  await invoke<void>("write_md_file", { path, contents: content });
+  await invoke<void>("write_text_file", { path, contents: content });
   return tauriOpenDoc({ kind: "tauri", id: path, name: basename(path), path });
 }
 
@@ -297,4 +297,29 @@ export async function saveAsNewFile(
   if (backendKind === "fsa") return fsaSaveAsNewFile(suggestedName, content);
   downloadBlob(content, suggestedName, "text/markdown");
   return null;
+}
+
+/** For "Export as ..." actions: writes a one-off file (HTML/plain-text
+ * export, not a document the app tracks afterwards). In the browser this
+ * is just a Blob download - but Tauri's WebView2 host doesn't reliably
+ * turn a blob-URL <a download> click into an actual saved file, so on
+ * desktop this goes through the same native save-dialog + fs-write path
+ * as saveAsNewFile() instead. */
+export async function exportFile(
+  suggestedName: string,
+  content: string,
+  mime: string,
+): Promise<void> {
+  if (backendKind === "tauri") {
+    const ext = suggestedName.split(".").pop()?.toLowerCase() ?? "txt";
+    const { save } = await import("@tauri-apps/plugin-dialog");
+    const path = await save({
+      defaultPath: suggestedName,
+      filters: [{ name: ext.toUpperCase(), extensions: [ext] }],
+    });
+    if (!path) return; // user cancelled
+    await invoke<void>("write_text_file", { path, contents: content });
+    return;
+  }
+  downloadBlob(content, suggestedName, mime);
 }

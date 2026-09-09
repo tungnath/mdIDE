@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { OpenDoc } from "$lib/platform";
-  import { downloadBlob } from "$lib/download";
+  import { exportFile, type OpenDoc } from "$lib/platform";
   import { renderStandaloneHtml, extractPlainText, baseNameWithoutExt } from "$lib/export";
 
   let {
@@ -46,18 +45,18 @@
     }
   }
 
-  function exportHtml() {
+  async function exportHtml() {
     if (!doc) return;
     const base = baseNameWithoutExt(doc.name);
-    downloadBlob(renderStandaloneHtml(content, base), `${base}.html`, "text/html");
     closeExport();
+    await exportFile(`${base}.html`, renderStandaloneHtml(content, base), "text/html");
   }
 
-  function exportText() {
+  async function exportText() {
     if (!doc) return;
     const base = baseNameWithoutExt(doc.name);
-    downloadBlob(extractPlainText(content), `${base}.txt`, "text/plain");
     closeExport();
+    await exportFile(`${base}.txt`, extractPlainText(content), "text/plain");
   }
 
   function exportPdf() {
