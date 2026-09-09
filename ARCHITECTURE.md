@@ -1,12 +1,12 @@
 # Architecture
 
-High-level shape of Marker: what runs where, how the pieces talk to each other,
+High-level shape of MarkDW: what runs where, how the pieces talk to each other,
 and how it ships. For file-by-file detail and design rationale, see
 [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md).
 
 ## System overview
 
-Marker is a single Svelte/SvelteKit frontend that runs unmodified in two
+MarkDW is a single Svelte/SvelteKit frontend that runs unmodified in two
 different hosts. Which host it's running in is detected at runtime, and a
 platform-abstraction layer swaps out how files actually get read/written.
 

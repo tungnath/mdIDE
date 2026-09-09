@@ -28,7 +28,7 @@ src/
 src-tauri/
   src/
     lib.rs                 Tauri commands: list_md_files, read_md_file, write_md_file
-    main.rs                 entry point, calls marker_lib::run()
+    main.rs                 entry point, calls markdw_lib::run()
   tauri.conf.json           app identity, window config, bundle targets
   capabilities/default.json  Tauri v2 permission grants (core, opener, dialog)
 

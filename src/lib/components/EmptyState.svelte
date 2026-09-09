@@ -19,7 +19,7 @@
       <path d="M11 30V18l6 7 6-7v12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
       <path d="M31 18v12M31 30l5-5M31 30l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
-    <h1>Marker</h1>
+    <h1>MarkDW</h1>
     <p>Open a single file, or browse a folder to see all its markdown files.</p>
     <div class="buttons">
       <button class="btn primary" onclick={onOpenFile}>Open File…</button>

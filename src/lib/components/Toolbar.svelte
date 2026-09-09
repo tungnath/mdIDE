@@ -75,7 +75,7 @@
         {#if dirty}<span class="dirty-dot" title="Unsaved changes"></span>{/if}
       </span>
     {:else}
-      <span class="app-title">Marker</span>
+      <span class="app-title">MarkDW</span>
     {/if}
   </div>
 

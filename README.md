@@ -1,4 +1,4 @@
-# Marker
+# MarkDW
 
 A very lightweight, beautiful markdown viewer/editor. Desktop app (via [Tauri](https://tauri.app)) with an optional browser mode.
 
@@ -8,12 +8,12 @@ Grab the latest installer for your platform from the [Releases page](https://git
 
 | Platform | File |
 |---|---|
-| Windows | `Marker_<version>_x64-setup.exe` — or the `.msi`, either works |
-| macOS (Apple Silicon) | `Marker_<version>_aarch64.dmg` |
-| macOS (Intel) | `Marker_<version>_x64.dmg` |
-| Linux (Debian/Ubuntu) | `Marker_<version>_amd64.deb` |
-| Linux (Fedora/RHEL) | `Marker-<version>-1.x86_64.rpm` |
-| Linux (any distro) | `Marker_<version>_amd64.AppImage` |
+| Windows | `MarkDW_<version>_x64-setup.exe` — or the `.msi`, either works |
+| macOS (Apple Silicon) | `MarkDW_<version>_aarch64.dmg` |
+| macOS (Intel) | `MarkDW_<version>_x64.dmg` |
+| Linux (Debian/Ubuntu) | `MarkDW_<version>_amd64.deb` |
+| Linux (Fedora/RHEL) | `MarkDW-<version>-1.x86_64.rpm` |
+| Linux (any distro) | `MarkDW_<version>_amd64.AppImage` |
 
 Each release also includes a `.app.tar.gz` per macOS architecture — those are auto-update artifacts, not meant for manual download.
 
