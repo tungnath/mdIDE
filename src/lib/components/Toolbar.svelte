@@ -9,10 +9,12 @@
     mode,
     saving,
     dark,
+    designSet,
     onSetMode,
     onSave,
     onClose,
     onToggleTheme,
+    onToggleDesignSet,
     onExportPdf,
     onOpenAbout,
   }: {
@@ -22,13 +24,17 @@
     mode: "view" | "edit" | "split";
     saving: boolean;
     dark: boolean;
+    designSet: "harbor" | "sage";
     onSetMode: (m: "view" | "edit" | "split") => void;
     onSave: () => void;
     onClose: () => void;
     onToggleTheme: () => void;
+    onToggleDesignSet: () => void;
     onExportPdf: () => void;
     onOpenAbout: () => void;
   } = $props();
+
+  const otherSetLabel = $derived(designSet === "harbor" ? "Sage" : "Harbor");
 
   let exportOpen = $state(false);
   let exportMenuEl: HTMLDivElement | undefined = $state();
@@ -169,6 +175,25 @@
 
     <button
       class="icon-btn"
+      title="Switch to {otherSetLabel}"
+      aria-label="Switch design to {otherSetLabel}"
+      onclick={onToggleDesignSet}
+    >
+      <svg viewBox="0 0 20 20" fill="none">
+        <path
+          d="M10 2.5a7.5 7.5 0 1 0 0 15c.9 0 1.5-.72 1.5-1.5 0-.4-.16-.75-.4-1.02-.24-.26-.4-.6-.4-.98 0-.78.6-1.5 1.5-1.5h1.4a2.6 2.6 0 0 0 2.6-2.6c0-4.14-2.96-7.4-6.2-7.4Z"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linejoin="round"
+        />
+        <circle cx="6.6" cy="8" r="1" fill="currentColor" />
+        <circle cx="9.7" cy="5.6" r="1" fill="currentColor" />
+        <circle cx="6.6" cy="12" r="1" fill="currentColor" />
+      </svg>
+    </button>
+
+    <button
+      class="icon-btn"
       title="About MarkDW"
       aria-label="About MarkDW"
       onclick={onOpenAbout}
@@ -191,7 +216,7 @@
     justify-content: space-between;
     padding: 0 1rem;
     border-bottom: 1px solid var(--border);
-    background: var(--surface);
+    background: var(--bar);
   }
 
   .app-title {
@@ -231,7 +256,7 @@
 
   .segmented button {
     border: none;
-    background: var(--surface);
+    background: transparent;
     color: var(--text-muted);
     font-size: 0.82rem;
     font-weight: 500;

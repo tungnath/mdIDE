@@ -89,7 +89,7 @@
     width: 260px;
     min-width: 260px;
     border-right: 1px solid var(--border);
-    background: var(--surface);
+    background: var(--surface-alt);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -106,7 +106,7 @@
 
   .btn {
     border: 1px solid var(--border);
-    background: var(--surface-alt);
+    background: var(--surface);
     color: var(--text);
     border-radius: 7px;
     padding: 0.45rem 0.7rem;
@@ -160,7 +160,7 @@
   }
 
   .icon-btn:hover {
-    background: var(--surface-alt);
+    background: var(--surface);
     color: var(--text);
   }
 
@@ -191,12 +191,14 @@
   }
 
   .file-item:hover {
-    background: var(--surface-alt);
+    background: var(--surface);
   }
 
   .file-item.active {
     background: var(--accent-soft);
     color: var(--accent);
+    border-left: 2px solid var(--accent);
+    padding-left: calc(0.55rem - 2px);
   }
 
   .empty-note {

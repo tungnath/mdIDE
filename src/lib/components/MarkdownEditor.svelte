@@ -1,47 +1,70 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { EditorView, basicSetup } from "codemirror";
-  import { EditorState, StateEffect, type Extension } from "@codemirror/state";
+  import { EditorState, type Extension } from "@codemirror/state";
   import { markdown } from "@codemirror/lang-markdown";
   import { languages } from "@codemirror/language-data";
-  import { oneDark } from "@codemirror/theme-one-dark";
+  import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+  import { tags as t } from "@lezer/highlight";
 
   let {
     value,
-    dark,
     onChange,
   }: {
     value: string;
-    dark: boolean;
     onChange: (v: string) => void;
   } = $props();
 
   let container: HTMLDivElement;
   let view: EditorView | undefined;
 
-  const lightTheme = EditorView.theme({
+  // Base editor chrome - reads the same design tokens as the rest of the
+  // app, so it follows the current design set (Harbor/Sage) and light/dark
+  // automatically, unlike a fixed pre-built theme package.
+  const chromeTheme = EditorView.theme({
     "&": {
-      backgroundColor: "var(--surface)",
+      backgroundColor: "var(--editor-bg)",
       color: "var(--text)",
       height: "100%",
     },
     ".cm-content": { caretColor: "var(--text)" },
     ".cm-gutters": {
-      backgroundColor: "var(--surface)",
-      color: "var(--text-muted)",
+      backgroundColor: "var(--editor-bg)",
+      color: "var(--gutter)",
       border: "none",
     },
     ".cm-activeLine": { backgroundColor: "var(--surface-alt)" },
     ".cm-activeLineGutter": { backgroundColor: "var(--surface-alt)" },
+    ".cm-selectionBackground": { backgroundColor: "var(--accent-soft) !important" },
+    "&.cm-focused .cm-selectionBackground": { backgroundColor: "var(--accent-soft) !important" },
     "&.cm-focused": { outline: "none" },
   });
 
-  function buildExtensions(isDark: boolean): Extension[] {
+  // Token colors for markdown syntax and any fenced-in code language,
+  // mapped onto the app's own accent tokens instead of a borrowed palette.
+  const tokenHighlight = HighlightStyle.define([
+    { tag: t.heading, color: "var(--accent2)", fontWeight: "700" },
+    { tag: t.strong, fontWeight: "700" },
+    { tag: t.emphasis, fontStyle: "italic" },
+    { tag: [t.link, t.url], color: "var(--accent)" },
+    { tag: t.monospace, color: "var(--accent2)" },
+    { tag: t.quote, color: "var(--text-muted)", fontStyle: "italic" },
+    { tag: t.contentSeparator, color: "var(--border-strong)" },
+    { tag: [t.list, t.processingInstruction], color: "var(--text-muted)" },
+    { tag: [t.keyword, t.operator, t.number, t.bool, t.null], color: "var(--accent2)" },
+    { tag: [t.string, t.regexp], color: "var(--accent)" },
+    { tag: [t.className, t.typeName, t.tagName], color: "var(--accent)" },
+    { tag: t.comment, color: "var(--text-muted)", fontStyle: "italic" },
+    { tag: t.invalid, color: "var(--danger)" },
+  ]);
+
+  function buildExtensions(): Extension[] {
     return [
       basicSetup,
       markdown({ codeLanguages: languages }),
       EditorView.lineWrapping,
-      isDark ? oneDark : lightTheme,
+      chromeTheme,
+      syntaxHighlighting(tokenHighlight),
       EditorView.theme({
         "&": { fontSize: "14.5px" },
         ".cm-content": {
@@ -51,14 +74,14 @@
         ".cm-scroller": {
           lineHeight: "1.6",
           scrollbarWidth: "thin",
-          scrollbarColor: "var(--border) transparent",
+          scrollbarColor: "var(--border-strong) transparent",
         },
         ".cm-scroller::-webkit-scrollbar": { width: "8px", height: "8px" },
         ".cm-scroller::-webkit-scrollbar-track": { background: "transparent" },
         ".cm-scroller::-webkit-scrollbar-thumb": {
-          background: "var(--border)",
+          background: "var(--border-strong)",
           borderRadius: "8px",
-          border: "2px solid var(--surface)",
+          border: "2px solid var(--editor-bg)",
           backgroundClip: "padding-box",
         },
         ".cm-scroller::-webkit-scrollbar-thumb:hover": {
@@ -78,7 +101,7 @@
     view = new EditorView({
       state: EditorState.create({
         doc: value,
-        extensions: buildExtensions(dark),
+        extensions: buildExtensions(),
       }),
       parent: container,
     });
@@ -94,11 +117,6 @@
     }
   });
 
-  $effect(() => {
-    if (view) {
-      view.dispatch({ effects: StateEffect.reconfigure.of(buildExtensions(dark)) });
-    }
-  });
 </script>
 
 <div class="editor-host" bind:this={container}></div>

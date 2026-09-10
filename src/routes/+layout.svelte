@@ -5,7 +5,7 @@
   let { children } = $props();
 
   $effect(() => {
-    applyTheme(theme.current);
+    applyTheme(theme.current, theme.designSet);
   });
 </script>
 

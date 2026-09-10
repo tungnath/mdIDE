@@ -61,8 +61,10 @@
   }
 
   h1 {
-    font-size: 1.3rem;
-    margin: 0 0 0.4rem;
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
   }
 
   p {

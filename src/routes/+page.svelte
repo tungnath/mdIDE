@@ -264,10 +264,12 @@
       {mode}
       {saving}
       dark={theme.current === "dark"}
+      designSet={theme.designSet}
       onSetMode={setMode}
       onSave={handleSave}
       onClose={handleCloseFile}
       onToggleTheme={() => theme.toggle()}
+      onToggleDesignSet={() => theme.toggleDesignSet()}
       onExportPdf={handleExportPdf}
       onOpenAbout={() => (aboutOpen = true)}
     />
@@ -295,11 +297,7 @@
 
     {#snippet editorOrLoading()}
       {#if EditorComponent}
-        <EditorComponent
-          value={content}
-          dark={theme.current === "dark"}
-          onChange={(v: string) => (content = v)}
-        />
+        <EditorComponent value={content} onChange={(v: string) => (content = v)} />
       {:else}
         <div class="editor-loading">Loading editor…</div>
       {/if}
