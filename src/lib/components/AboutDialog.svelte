@@ -1,6 +1,7 @@
 <script lang="ts">
   import { version } from "../../../package.json";
   import { backendKind } from "$lib/platform";
+  import AppMark from "./AppMark.svelte";
 
   let { open, onClose }: { open: boolean; onClose: () => void } = $props();
 
@@ -39,16 +40,16 @@
       onclick={(e) => e.stopPropagation()}
     >
       <div class="head">
-        <svg class="mark" viewBox="0 0 48 48" fill="none">
-          <rect x="4" y="8" width="40" height="32" rx="6" stroke="currentColor" stroke-width="2.2" />
-          <path d="M11 30V18l6 7 6-7v12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M31 18v12M31 30l5-5M31 30l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <span class="eyebrow">About MarkDW</span>
+        <button class="close" onclick={onClose} aria-label="Close">×</button>
+      </div>
+
+      <div class="identity">
+        <AppMark size={40} />
         <div>
           <h2 id="about-title">MarkDW</h2>
           <p class="version">Version {version} · {currentModeLabel}</p>
         </div>
-        <button class="close" onclick={onClose} aria-label="Close">×</button>
       </div>
 
       <p class="tagline">
@@ -63,7 +64,6 @@
             <li>Files are read and written directly on your machine, only when you open, save, or export - via native file dialogs you control.</li>
             <li>Nothing is ever sent over the network. There's no server, no account, no analytics or telemetry.</li>
             <li>Clipboard content is read only when you click "New from Clipboard," never automatically.</li>
-            <li>Your theme preference is the only thing stored locally (in the app's own local data folder) - no file content is cached or retained outside the files you explicitly save.</li>
           </ul>
         </section>
 
@@ -71,14 +71,14 @@
           <h3>Web app</h3>
           <ul>
             <li>Runs entirely in your browser as a static site - no backend server, no database, no file uploads. File content never leaves your device.</li>
-            <li>In Chrome/Edge: folder browsing and save-in-place use the browser's File System Access API - you grant per-file/folder permission, and the site can only touch what you explicitly picked.</li>
-            <li>In other browsers: opening a file reads it locally via a plain file picker (never uploaded); "saving" downloads a new copy - the original file is untouched.</li>
-            <li>Only your theme preference is stored, in your browser's local storage, scoped to this site - nothing is sent to a server, and no cookies or trackers are used.</li>
+            <li>In Chrome/Edge: folder browsing and save-in-place use the browser's File System Access API, scoped to only what you pick.</li>
+            <li>Other browsers: opening reads a file locally; "saving" downloads a copy - the original is untouched.</li>
           </ul>
         </section>
       </div>
 
       <div class="foot">
+        <span class="note">Only your theme preference is stored locally.</span>
         <button class="btn" onclick={onClose}>Close</button>
       </div>
     </div>
@@ -89,7 +89,7 @@
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(10, 10, 14, 0.35);
+    background: rgba(10, 10, 14, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -100,10 +100,9 @@
   .modal {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     box-shadow: var(--shadow);
-    padding: 1.5rem;
-    width: 460px;
+    width: 520px;
     max-width: 100%;
     max-height: calc(100vh - 3rem);
     overflow-y: auto;
@@ -111,32 +110,18 @@
 
   .head {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--border);
   }
 
-  .mark {
-    width: 32px;
-    height: 32px;
-    color: var(--accent);
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
-
-  .head > div {
-    flex: 1;
-    min-width: 0;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
-
-  .version {
-    margin: 0.15rem 0 0;
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--text-muted);
-    font-size: 0.8rem;
   }
 
   .close {
@@ -147,7 +132,7 @@
     line-height: 1;
     width: 26px;
     height: 26px;
-    border-radius: 6px;
+    border-radius: 999px;
     flex-shrink: 0;
   }
 
@@ -156,67 +141,104 @@
     color: var(--text);
   }
 
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.3rem 1.2rem 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .version {
+    margin: 0.2rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+  }
+
   .tagline {
-    margin: 1rem 0 0;
+    margin: 1rem 1.2rem 0;
     color: var(--text);
     font-size: 0.88rem;
     line-height: 1.5;
   }
 
   .body {
-    margin-top: 1.1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    margin: 1.1rem 1.2rem 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    .body {
+      grid-template-columns: 1fr;
+    }
   }
 
   section {
     background: var(--surface-alt);
-    border-radius: 8px;
-    padding: 0.85rem 0.95rem;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
   }
 
   h3 {
     margin: 0 0 0.5rem;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    color: var(--accent2);
   }
 
   ul {
     margin: 0;
-    padding-left: 1.1em;
+    padding-left: 1.05em;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
 
   li {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     line-height: 1.5;
     color: var(--text);
   }
 
   .foot {
-    margin-top: 1.3rem;
+    margin-top: 1.2rem;
+    padding: 0.9rem 1.2rem;
+    background: var(--note-bg);
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .note {
+    font-size: 0.76rem;
+    color: var(--text-muted);
   }
 
   .btn {
-    border: 1px solid var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
-    border-radius: 7px;
-    padding: 0.45rem 0.9rem;
-    font-size: 0.85rem;
-    font-weight: 500;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    flex-shrink: 0;
   }
 
   .btn:hover {
-    filter: brightness(0.97);
+    filter: brightness(1.05);
   }
 </style>

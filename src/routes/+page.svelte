@@ -249,11 +249,16 @@
     {files}
     {activeId}
     supportsFolder={supportsFolderBrowsing}
+    dark={theme.current === "dark"}
+    designSet={theme.designSet}
     onOpenFolder={handleOpenFolder}
     onOpenFile={handleOpenFile}
     onNewFromClipboard={handleNewFromClipboard}
     onCloseFolder={handleCloseFolder}
     onSelectEntry={handleSelectEntry}
+    onToggleTheme={() => theme.toggle()}
+    onToggleDesignSet={() => theme.toggleDesignSet()}
+    onOpenAbout={() => (aboutOpen = true)}
   />
 
   <div class="main">
@@ -263,15 +268,10 @@
       {dirty}
       {mode}
       {saving}
-      dark={theme.current === "dark"}
-      designSet={theme.designSet}
       onSetMode={setMode}
       onSave={handleSave}
       onClose={handleCloseFile}
-      onToggleTheme={() => theme.toggle()}
-      onToggleDesignSet={() => theme.toggleDesignSet()}
       onExportPdf={handleExportPdf}
-      onOpenAbout={() => (aboutOpen = true)}
     />
 
     {#if errorMsg}

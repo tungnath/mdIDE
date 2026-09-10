@@ -401,7 +401,7 @@ button {
 /* ---------- print (used by "Export as PDF", via window.print()) ---------- */
 
 @media print {
-  .sidebar,
+  .rail-wrap,
   .toolbar,
   .error-banner,
   .split-divider,

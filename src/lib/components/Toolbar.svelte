@@ -1,6 +1,7 @@
 <script lang="ts">
   import { exportFile, type OpenDoc } from "$lib/platform";
   import { renderStandaloneHtml, extractPlainText, baseNameWithoutExt } from "$lib/export";
+  import AppMark from "./AppMark.svelte";
 
   let {
     doc,
@@ -8,38 +9,27 @@
     dirty,
     mode,
     saving,
-    dark,
-    designSet,
     onSetMode,
     onSave,
     onClose,
-    onToggleTheme,
-    onToggleDesignSet,
     onExportPdf,
-    onOpenAbout,
   }: {
     doc: OpenDoc | null;
     content: string;
     dirty: boolean;
     mode: "view" | "edit" | "split";
     saving: boolean;
-    dark: boolean;
-    designSet: "harbor" | "sage";
     onSetMode: (m: "view" | "edit" | "split") => void;
     onSave: () => void;
     onClose: () => void;
-    onToggleTheme: () => void;
-    onToggleDesignSet: () => void;
     onExportPdf: () => void;
-    onOpenAbout: () => void;
   } = $props();
-
-  const otherSetLabel = $derived(designSet === "harbor" ? "Sage" : "Harbor");
 
   let exportOpen = $state(false);
   let exportMenuEl: HTMLDivElement | undefined = $state();
 
   function toggleExport() {
+    if (!doc) return;
     exportOpen = !exportOpen;
   }
 
@@ -68,6 +58,7 @@
   }
 
   function exportPdf() {
+    if (!doc) return;
     closeExport();
     onExportPdf();
   }
@@ -77,181 +68,140 @@
 
 <header class="toolbar">
   <div class="left">
-    {#if doc}
-      <span class="file-title">
-        {doc.name}
-        {#if dirty}<span class="dirty-dot" title="Unsaved changes"></span>{/if}
-      </span>
-    {:else}
-      <span class="app-title">MarkDW</span>
-    {/if}
+    <AppMark size={28} />
+
+    <span class="chip">
+      {#if dirty}<span class="dot"></span>{/if}
+      <span class="chip-text">{doc ? doc.name : "No file open"}</span>
+    </span>
   </div>
 
   <div class="right">
-    {#if doc}
-      <div class="segmented" role="tablist">
-        <button
-          role="tab"
-          aria-selected={mode === "view"}
-          class:active={mode === "view"}
-          onclick={() => onSetMode("view")}
-        >
-          View
-        </button>
-        <button
-          role="tab"
-          aria-selected={mode === "split"}
-          class:active={mode === "split"}
-          onclick={() => onSetMode("split")}
-        >
-          Split
-        </button>
-        <button
-          role="tab"
-          aria-selected={mode === "edit"}
-          class:active={mode === "edit"}
-          onclick={() => onSetMode("edit")}
-        >
-          Edit
-        </button>
-      </div>
-
-      <button class="btn save" disabled={!dirty || saving} onclick={onSave}>
-        {saving ? "Saving…" : "Save"}
+    <div class="segmented" role="tablist" aria-disabled={!doc}>
+      <button
+        role="tab"
+        aria-selected={mode === "view"}
+        class:active={mode === "view"}
+        disabled={!doc}
+        onclick={() => onSetMode("view")}
+      >
+        View
       </button>
-
-      <div class="export-wrap" bind:this={exportMenuEl}>
-        <button
-          class="btn"
-          onclick={toggleExport}
-          aria-haspopup="menu"
-          aria-expanded={exportOpen}
-        >
-          Export ▾
-        </button>
-        {#if exportOpen}
-          <div class="export-menu" role="menu">
-            <button role="menuitem" onclick={exportHtml}>as HTML</button>
-            <button role="menuitem" onclick={exportPdf}>as PDF…</button>
-            <button role="menuitem" onclick={exportText}>as Plain Text</button>
-          </div>
-        {/if}
-      </div>
-
-      <button class="icon-btn" title="Close file" aria-label="Close file" onclick={onClose}>
-        ×
+      <button
+        role="tab"
+        aria-selected={mode === "split"}
+        class:active={mode === "split"}
+        disabled={!doc}
+        onclick={() => onSetMode("split")}
+      >
+        Split
       </button>
+      <button
+        role="tab"
+        aria-selected={mode === "edit"}
+        class:active={mode === "edit"}
+        disabled={!doc}
+        onclick={() => onSetMode("edit")}
+      >
+        Edit
+      </button>
+    </div>
 
-      <div class="divider"></div>
-    {/if}
+    <button class="pill" disabled={!doc || !dirty || saving} onclick={onSave}>
+      {saving ? "Saving…" : "Save"}
+    </button>
 
-    <button
-      class="icon-btn"
-      title="Toggle theme"
-      aria-label="Toggle theme"
-      onclick={onToggleTheme}
-    >
-      {#if dark}
-        <svg viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.3" />
-          <path
-            d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9 4.5 4.5"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
-          />
-        </svg>
-      {:else}
-        <svg viewBox="0 0 20 20" fill="none">
-          <path
-            d="M17 11.5A7 7 0 1 1 8.5 3a5.5 5.5 0 0 0 8.5 8.5Z"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linejoin="round"
-          />
-        </svg>
+    <div class="export-wrap" bind:this={exportMenuEl}>
+      <button
+        class="pill filled"
+        disabled={!doc}
+        onclick={toggleExport}
+        aria-haspopup="menu"
+        aria-expanded={exportOpen}
+      >
+        Export ▾
+      </button>
+      {#if exportOpen}
+        <div class="export-menu" role="menu">
+          <button role="menuitem" onclick={exportHtml}>as HTML</button>
+          <button role="menuitem" onclick={exportPdf}>as PDF…</button>
+          <button role="menuitem" onclick={exportText}>as Plain Text</button>
+        </div>
       {/if}
-    </button>
+    </div>
 
     <button
       class="icon-btn"
-      title="Switch to {otherSetLabel}"
-      aria-label="Switch design to {otherSetLabel}"
-      onclick={onToggleDesignSet}
+      title="Close file"
+      aria-label="Close file"
+      disabled={!doc}
+      onclick={onClose}
     >
-      <svg viewBox="0 0 20 20" fill="none">
-        <path
-          d="M10 2.5a7.5 7.5 0 1 0 0 15c.9 0 1.5-.72 1.5-1.5 0-.4-.16-.75-.4-1.02-.24-.26-.4-.6-.4-.98 0-.78.6-1.5 1.5-1.5h1.4a2.6 2.6 0 0 0 2.6-2.6c0-4.14-2.96-7.4-6.2-7.4Z"
-          stroke="currentColor"
-          stroke-width="1.3"
-          stroke-linejoin="round"
-        />
-        <circle cx="6.6" cy="8" r="1" fill="currentColor" />
-        <circle cx="9.7" cy="5.6" r="1" fill="currentColor" />
-        <circle cx="6.6" cy="12" r="1" fill="currentColor" />
-      </svg>
-    </button>
-
-    <button
-      class="icon-btn"
-      title="About MarkDW"
-      aria-label="About MarkDW"
-      onclick={onOpenAbout}
-    >
-      <svg viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.3" />
-        <path d="M10 9v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-        <circle cx="10" cy="6.6" r="0.9" fill="currentColor" />
-      </svg>
+      ×
     </button>
   </div>
 </header>
 
 <style>
   .toolbar {
-    height: 52px;
-    min-height: 52px;
+    height: 56px;
+    min-height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 0 1.1rem;
     border-bottom: 1px solid var(--border);
     background: var(--bar);
+    gap: 1rem;
   }
 
-  .app-title {
-    font-weight: 650;
-    font-size: 0.92rem;
-    color: var(--text-muted);
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
   }
 
-  .file-title {
-    font-weight: 600;
-    font-size: 0.92rem;
+  .chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    min-width: 0;
   }
 
-  .dirty-dot {
-    width: 7px;
-    height: 7px;
+  .chip-text {
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--accent);
-    display: inline-block;
+    background: var(--accent2);
+    flex-shrink: 0;
   }
 
   .right {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    flex-shrink: 0;
   }
 
   .segmented {
     display: flex;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    overflow: hidden;
+    gap: 0.15rem;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    padding: 0.2rem;
   }
 
   .segmented button {
@@ -259,33 +209,39 @@
     background: transparent;
     color: var(--text-muted);
     font-size: 0.82rem;
-    font-weight: 500;
-    padding: 0.35rem 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
   }
 
   .segmented button.active {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-fg);
   }
 
-  .btn {
+  .segmented button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .pill {
     border: 1px solid var(--border);
     background: var(--surface-alt);
     color: var(--text);
-    border-radius: 7px;
-    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
     font-size: 0.82rem;
     font-weight: 600;
   }
 
-  .btn.save:not(:disabled) {
+  .pill.filled {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--accent-fg);
   }
 
-  .btn:disabled {
-    opacity: 0.5;
+  .pill:disabled {
+    opacity: 0.45;
     cursor: default;
   }
 
@@ -293,29 +249,23 @@
     border: none;
     background: none;
     color: var(--text-muted);
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
-  .icon-btn:hover {
+  .icon-btn:hover:not(:disabled) {
     background: var(--surface-alt);
     color: var(--text);
   }
 
-  .icon-btn svg {
-    width: 17px;
-    height: 17px;
-  }
-
-  .divider {
-    width: 1px;
-    height: 20px;
-    background: var(--border);
+  .icon-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
   .export-wrap {
@@ -328,7 +278,7 @@
     right: 0;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--shadow);
     padding: 0.3rem;
     display: flex;
