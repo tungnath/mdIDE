@@ -29,3 +29,5 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.log
+
+design_handoff_markdw_redesign/
