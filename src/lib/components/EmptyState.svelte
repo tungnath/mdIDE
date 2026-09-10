@@ -1,4 +1,6 @@
 <script lang="ts">
+  import AppMark from "./AppMark.svelte";
+
   let {
     supportsFolder,
     onOpenFolder,
@@ -14,11 +16,7 @@
 
 <div class="empty">
   <div class="card">
-    <svg class="mark" viewBox="0 0 48 48" fill="none">
-      <rect x="4" y="8" width="40" height="32" rx="6" stroke="currentColor" stroke-width="2.2" />
-      <path d="M11 30V18l6 7 6-7v12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M31 18v12M31 30l5-5M31 30l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+    <AppMark size={64} />
     <h1>MarkDW</h1>
     <p>Open a single file, or browse a folder to see all its markdown files.</p>
     <div class="buttons">
@@ -40,55 +38,59 @@
 
 <style>
   .empty {
+    container-type: inline-size;
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-  }
-
-  .card {
-    text-align: center;
-    max-width: 380px;
     padding: 2rem;
   }
 
-  .mark {
-    width: 44px;
-    height: 44px;
-    color: var(--accent);
-    margin-bottom: 0.75rem;
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 460px;
+  }
+
+  .card > :global(img) {
+    margin-bottom: 1.25rem;
   }
 
   h1 {
     font-family: var(--font-serif);
-    font-size: 1.7rem;
+    font-size: 1.9rem;
     font-weight: 600;
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.9rem;
   }
 
   p {
     color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.55;
-    margin: 0 0 1.4rem;
+    font-size: 0.96rem;
+    line-height: 1.65;
+    max-width: 340px;
+    margin: 0 auto 2.2rem;
   }
 
   .buttons {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.75rem;
     justify-content: center;
     flex-wrap: wrap;
+    width: 100%;
   }
 
   .btn {
     border: 1px solid var(--border);
     background: var(--surface-alt);
     color: var(--text);
-    border-radius: 8px;
-    padding: 0.55rem 1.1rem;
-    font-size: 0.88rem;
+    border-radius: 10px;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.92rem;
     font-weight: 600;
+    flex: 0 1 auto;
   }
 
   .btn.primary {
@@ -97,8 +99,22 @@
     color: var(--accent-fg);
   }
 
+  /* Stack full-width once the available pane (not the viewport - the
+     sidebar can eat into it) gets tight, instead of an uneven 2-then-1
+     wrap. */
+  @container (max-width: 420px) {
+    .buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      flex: 1 1 auto;
+    }
+  }
+
   .note {
-    margin-top: 1.4rem;
+    margin-top: 1.6rem;
     font-size: 0.78rem;
+    max-width: 340px;
   }
 </style>

@@ -2,22 +2,19 @@
   let { size = 28 }: { size?: number } = $props();
 </script>
 
-<span
+<img
   class="mark"
-  style="width:{size}px;height:{size}px;font-size:{Math.round(size * 0.42)}px;border-radius:{Math.round(size * 0.28)}px"
->
-  M
-</span>
+  src="/favicon.png"
+  alt="MarkDW"
+  width={size}
+  height={size}
+  style="width:{size}px;height:{size}px;border-radius:{Math.round(size * 0.22)}px"
+/>
 
 <style>
   .mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
     flex-shrink: 0;
-    background: var(--accent);
-    color: var(--accent-fg);
-    font-family: var(--font-mono);
-    font-weight: 700;
+    object-fit: cover;
   }
 </style>
